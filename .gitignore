@@ -1,0 +1,11 @@
+# Ignore all node_modules everywhere
+node_modules/
+
+# Environment files
+.env
+
+# Build outputs
+dist/
+
+# Firebase secrets
+serviceAccountKey.json
