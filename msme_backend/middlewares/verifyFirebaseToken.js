@@ -1,4 +1,4 @@
-const admin = require("F:/MSME/msme_backend/firebase.js");
+const admin = require("../firebase");
 
 const verifyFirebaseToken = async (req, res, next) => {
   const authHeader = req.headers.authorization;
