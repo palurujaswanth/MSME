@@ -1,166 +1,106 @@
-import { useState } from "react";
 import { motion } from "framer-motion";
-import { TrendingUp, IndianRupee, CreditCard, FileText, Lightbulb } from "lucide-react";
-import { BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer, Cell } from "recharts";
-import Navbar from "@/components/Navbar";
-import ApprovalCircle from "@/components/ApprovalCircle";
-import RiskBadge from "@/components/RiskBadge";
-import SchemeCard from "@/components/SchemeCard";
-import SchemeDetailModal from "@/components/SchemeDetailModal";
-import RiskExplanationModal from "@/components/RiskExplanationModal";
-import FloatingActions from "@/components/FloatingActions";
-import InfoTooltip from "@/components/InfoTooltip";
-import { mockSchemes, mockImprovements, mockChartData, mockUserProfile } from "@/data/mockData";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { User, FileCheck, Star, TrendingUp, BarChart3, BookOpen } from "lucide-react";
+import PageLayout from "@/components/layout/PageLayout";
 import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { ArrowRight, CheckCircle } from "lucide-react";
 
-const statCards = [
-  { label: "Credit Score", value: "680", icon: CreditCard, tip: "A score above 700 increases loan approval chances significantly." },
-  { label: "Annual Revenue", value: "₹12L", icon: IndianRupee, tip: "Higher revenue demonstrates business viability to lenders." },
-  { label: "GST Filing", value: "18 mo", icon: FileText, tip: "Continuous GST filing for 12+ months improves eligibility." },
-  { label: "Eligible Schemes", value: "3", icon: TrendingUp, tip: "Number of government schemes matching your profile." },
+const recommendedSchemes = [
+  { name: "Mudra Yojana - Shishu", match: 92, status: "High Match" },
+  { name: "CGTMSE Guarantee", match: 87, status: "High Match" },
+  { name: "PMEGP Scheme", match: 74, status: "Medium Match" },
+  { name: "Stand-Up India", match: 61, status: "Medium Match" },
 ];
 
-const Dashboard = () => {
-  const [selectedScheme, setSelectedScheme] = useState<typeof mockSchemes[0] | null>(null);
-  const [riskModalOpen, setRiskModalOpen] = useState(false);
-  const [improvementModal, setImprovementModal] = useState<typeof mockImprovements[0] | null>(null);
-
-  return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-
-      {/* Breadcrumb */}
-      <div className="container pt-4">
-        <nav className="text-xs text-muted-foreground" aria-label="Breadcrumb">
-          <Link to="/" className="hover:text-foreground">Home</Link>
-          <span className="mx-1.5">/</span>
-          <span className="text-foreground font-medium">Dashboard</span>
-        </nav>
-      </div>
-
-      <main className="container py-6 space-y-6">
+const Dashboard = () => (
+  <PageLayout>
+    <div className="py-8 lg:py-12">
+      <div className="container mx-auto px-4 lg:px-8 max-w-6xl">
         {/* Welcome */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="font-display text-2xl font-bold text-foreground">Welcome, {mockUserProfile.name}</h1>
-            <p className="text-sm text-muted-foreground">{mockUserProfile.business} • {mockUserProfile.category}</p>
-          </div>
-          <Link to="/form">
-            <Button className="gradient-primary text-primary-foreground btn-ripple">
-              Update Details <ArrowRight className="h-4 w-4 ml-1.5" />
-            </Button>
-          </Link>
-        </div>
+        <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
+          <h1 className="font-display font-bold text-2xl lg:text-3xl text-foreground">Welcome back, Rajesh 👋</h1>
+          <p className="text-muted-foreground mt-1">Here's your credit intelligence overview.</p>
+        </motion.div>
 
-        {/* Stat Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {statCards.map((s, i) => (
-            <motion.div
-              key={s.label}
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.08 }}
-              className="rounded-xl border border-border bg-card p-4 card-shadow hover:card-shadow-hover transition-shadow"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent">
-                  <s.icon className="h-4 w-4 text-accent-foreground" />
-                </div>
-                <InfoTooltip content={s.tip} />
-              </div>
-              <p className="mt-3 text-2xl font-bold font-display text-foreground">{s.value}</p>
-              <p className="text-xs text-muted-foreground">{s.label}</p>
+        {/* Top cards */}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+          {[
+            { icon: FileCheck, label: "Eligible Schemes", value: "12", color: "text-accent-foreground" },
+            { icon: TrendingUp, label: "Approval Probability", value: "78%", color: "text-success" },
+            { icon: BarChart3, label: "Credit Score", value: "720", color: "text-info" },
+            { icon: BookOpen, label: "Applications", value: "3", color: "text-warning" },
+          ].map((card, i) => (
+            <motion.div key={i} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}
+              className="bg-card rounded-2xl p-6 soft-shadow border border-border/30">
+              <card.icon className={`w-5 h-5 ${card.color} mb-3`} />
+              <p className="text-sm text-muted-foreground">{card.label}</p>
+              <p className="font-display font-bold text-2xl text-foreground">{card.value}</p>
             </motion.div>
           ))}
         </div>
 
-        {/* Main Grid */}
         <div className="grid lg:grid-cols-3 gap-6">
-          {/* Approval + Risk */}
-          <div className="rounded-xl border border-border bg-card p-6 card-shadow flex flex-col items-center">
-            <h2 className="font-display font-semibold text-foreground mb-4">Loan Approval Probability</h2>
-            <ApprovalCircle percentage={mockUserProfile.loanApprovalProbability} />
-            <div className="mt-4">
-              <RiskBadge level={mockUserProfile.riskLevel} onClick={() => setRiskModalOpen(true)} />
+          {/* Recommended Schemes */}
+          <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="lg:col-span-2">
+            <div className="bg-card rounded-3xl p-7 soft-shadow-lg border border-border/30">
+              <h2 className="font-display font-semibold text-lg text-foreground mb-5">Recommended Schemes</h2>
+              <div className="space-y-4">
+                {recommendedSchemes.map((s, i) => (
+                  <div key={i} className="flex items-center justify-between p-4 bg-background rounded-2xl">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-xl gradient-bg-soft flex items-center justify-center">
+                        <Star className="w-5 h-5 text-accent-foreground" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-foreground text-sm">{s.name}</p>
+                        <p className="text-xs text-muted-foreground">{s.status}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-display font-bold text-foreground">{s.match}%</p>
+                      <div className="w-20 h-1.5 bg-muted rounded-full mt-1">
+                        <div className="h-full gradient-bg rounded-full" style={{ width: `${s.match}%` }} />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <Link to="/eligibility" className="block mt-5 text-center text-sm text-accent-foreground font-medium hover:underline">
+                View All Matches →
+              </Link>
             </div>
-          </div>
+          </motion.div>
 
-          {/* Chart */}
-          <div className="lg:col-span-2 rounded-xl border border-border bg-card p-6 card-shadow">
-            <h2 className="font-display font-semibold text-foreground mb-4">Financial Overview</h2>
-            <ResponsiveContainer width="100%" height={220}>
-              <BarChart data={mockChartData} barSize={40}>
-                <XAxis dataKey="name" tick={{ fontSize: 12 }} stroke="hsl(var(--muted-foreground))" />
-                <YAxis tick={{ fontSize: 12 }} stroke="hsl(var(--muted-foreground))" tickFormatter={(v) => `₹${(v / 100000).toFixed(0)}L`} />
-                <RechartsTooltip
-                  contentStyle={{ borderRadius: 8, border: "1px solid hsl(var(--border))", background: "hsl(var(--card))" }}
-                  formatter={(value: number) => [`₹${(value / 100000).toFixed(1)}L`, ""]}
-                />
-                <Bar dataKey="value" radius={[6, 6, 0, 0]}>
-                  {mockChartData.map((entry) => (
-                    <Cell key={entry.name} fill={entry.fill} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* Schemes */}
-        <div>
-          <h2 className="font-display text-lg font-semibold text-foreground mb-4">Eligible Government Schemes</h2>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {mockSchemes.map((s) => (
-              <SchemeCard key={s.id} scheme={s} onClick={() => setSelectedScheme(s)} />
-            ))}
-          </div>
-        </div>
-
-        {/* Improvements */}
-        <div>
-          <h2 className="font-display text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
-            <Lightbulb className="h-5 w-5 text-warning" /> Improvement Suggestions
-          </h2>
-          <div className="grid sm:grid-cols-2 gap-4">
-            {mockImprovements.map((imp) => (
-              <motion.button
-                key={imp.id}
-                whileHover={{ y: -2 }}
-                onClick={() => setImprovementModal(imp)}
-                className="w-full text-left rounded-xl border border-border bg-card p-5 card-shadow hover:card-shadow-hover transition-shadow"
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="font-semibold text-sm text-foreground">{imp.title}</h3>
-                  <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${imp.impact === "High" ? "bg-destructive/10 text-destructive" : "bg-warning/10 text-warning"}`}>
-                    {imp.impact} Impact
-                  </span>
+          {/* Profile Summary */}
+          <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
+            <div className="bg-card rounded-3xl p-7 soft-shadow-lg border border-border/30">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 rounded-2xl gradient-bg flex items-center justify-center">
+                  <User className="w-6 h-6 text-primary-foreground" />
                 </div>
-                <p className="text-xs text-muted-foreground line-clamp-2">{imp.description}</p>
-              </motion.button>
-            ))}
-          </div>
+                <div>
+                  <p className="font-display font-semibold text-foreground">Rajesh Kumar</p>
+                  <p className="text-xs text-muted-foreground">Manufacturing • Mumbai</p>
+                </div>
+              </div>
+              <div className="space-y-4">
+                {[
+                  { label: "Business Type", value: "Micro Enterprise" },
+                  { label: "Annual Turnover", value: "₹45 Lakhs" },
+                  { label: "Employees", value: "12" },
+                  { label: "UDYAM Registered", value: "Yes" },
+                  { label: "Years in Business", value: "4 years" },
+                ].map((item, i) => (
+                  <div key={i} className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">{item.label}</span>
+                    <span className="font-medium text-foreground">{item.value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
         </div>
-      </main>
-
-      {/* Modals */}
-      <SchemeDetailModal scheme={selectedScheme} open={!!selectedScheme} onClose={() => setSelectedScheme(null)} />
-      <RiskExplanationModal open={riskModalOpen} onClose={() => setRiskModalOpen(false)} riskLevel={mockUserProfile.riskLevel} />
-      <Dialog open={!!improvementModal} onOpenChange={() => setImprovementModal(null)}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle className="font-display">{improvementModal?.title}</DialogTitle>
-            <DialogDescription>{improvementModal?.description}</DialogDescription>
-          </DialogHeader>
-          <p className="text-sm text-muted-foreground leading-relaxed">{improvementModal?.details}</p>
-        </DialogContent>
-      </Dialog>
-
-      <FloatingActions />
+      </div>
     </div>
-  );
-};
+  </PageLayout>
+);
 
 export default Dashboard;

@@ -1,169 +1,146 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { BarChart3, Eye, EyeOff } from "lucide-react";
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
-
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
+import { Lock, Mail, ArrowRight } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import { useToast } from "@/hooks/use-toast";
+import PageLayout from "@/components/layout/PageLayout";
 
 const Login = () => {
-  const [isRegister, setIsRegister] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
 
-    try {
-      if (isRegister) {
-        // 🔹 Register user
-        await createUserWithEmailAndPassword(auth, email, password);
-        toast({
-          title: "Account Created 🎉",
-          description: "Welcome to MSME Credit",
-        });
-      } else {
-        // 🔹 Login user
-        await signInWithEmailAndPassword(auth, email, password);
-        toast({
-          title: "Login Successful",
-          description: "Redirecting to dashboard...",
-        });
-      }
-
-      navigate("/dashboard");
-    } catch (error: any) {
+    if (!email || !password) {
       toast({
-        title: "Authentication Failed",
-        description: error.message,
+        title: "Missing Fields",
+        description: "Please enter both email and password.",
         variant: "destructive",
       });
-    } finally {
-      setLoading(false);
+      return;
+    }
+
+    try {
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+
+      const user = userCredential.user;
+
+      // 🚨 Block login if email not verified
+      if (!user.emailVerified) {
+        toast({
+          title: "Email Not Verified",
+          description:
+            "Please verify your email before logging in. Check your inbox.",
+          variant: "destructive",
+        });
+
+        await auth.signOut();
+        return;
+      }
+
+      toast({
+        title: "Login Successful",
+        description: "Welcome back to CreditIntel!",
+      });
+
+      // 🚀 Redirect to Home Page
+      navigate("/", { replace: true });
+
+    } catch (error: any) {
+      toast({
+        title: "Login Failed",
+        description:
+          error?.message || "Invalid credentials. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-sm"
-      >
-        {/* Header */}
-        <div className="text-center mb-8">
-          <Link
-            to="/"
-            className="inline-flex items-center gap-2 font-display font-bold text-xl text-foreground"
-          >
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl gradient-primary">
-              <BarChart3 className="h-5 w-5 text-primary-foreground" />
-            </div>
-            MSME Credit
-          </Link>
-          <p className="mt-2 text-sm text-muted-foreground">
-            {isRegister ? "Create your account" : "Welcome back"}
-          </p>
-        </div>
-
-        {/* Form */}
-        <form
-          onSubmit={handleSubmit}
-          className="rounded-xl border border-border bg-card p-6 card-shadow space-y-4"
+    <PageLayout showFooter={false}>
+      <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 py-12">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="w-full max-w-md"
         >
-          {/* Full Name (Register only – UI only for now) */}
-          {isRegister && (
-            <div className="space-y-1.5">
-              <Label htmlFor="name">Full Name</Label>
-              <Input id="name" placeholder="Rajesh Kumar" />
+          <div className="bg-card rounded-3xl p-8 lg:p-10 soft-shadow-lg border border-border/50">
+            <div className="text-center mb-8">
+              <div className="w-12 h-12 rounded-xl gradient-bg flex items-center justify-center mx-auto mb-4 text-primary-foreground font-bold">
+                CI
+              </div>
+              <h1 className="font-display font-bold text-2xl text-foreground">
+                Welcome Back
+              </h1>
+              <p className="text-sm text-muted-foreground mt-1">
+                Sign in to your CreditIntel account
+              </p>
             </div>
-          )}
 
-          {/* Email */}
-          <div className="space-y-1.5">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="you@business.com"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </div>
+            <form onSubmit={handleLogin} className="space-y-5">
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1.5">
+                  Email
+                </label>
+                <div className="relative">
+                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="you@company.com"
+                    className="w-full pl-10 pr-4 py-3 bg-background border border-border rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/50 transition"
+                  />
+                </div>
+              </div>
 
-          {/* Password */}
-          <div className="space-y-1.5">
-            <Label htmlFor="password">Password</Label>
-            <div className="relative">
-              <Input
-                id="password"
-                type={showPassword ? "text" : "password"}
-                placeholder="••••••••"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1.5">
+                  Password
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="w-full pl-10 pr-4 py-3 bg-background border border-border rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/50 transition"
+                  />
+                </div>
+              </div>
+
               <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                aria-label="Toggle password visibility"
+                type="submit"
+                className="w-full py-3 gradient-bg text-primary-foreground font-semibold rounded-xl hover:opacity-90 transition-opacity flex items-center justify-center gap-2 text-sm"
               >
-                {showPassword ? (
-                  <EyeOff className="h-4 w-4" />
-                ) : (
-                  <Eye className="h-4 w-4" />
-                )}
+                Sign In <ArrowRight className="w-4 h-4" />
               </button>
-            </div>
+            </form>
+
+            <p className="text-center text-sm text-muted-foreground mt-6">
+              Don't have an account?{" "}
+              <Link
+                to="/register"
+                className="text-accent-foreground font-medium hover:underline"
+              >
+                Create an Account
+              </Link>
+            </p>
           </div>
-
-          {/* GSTIN (Register only – optional) */}
-          {isRegister && (
-            <div className="space-y-1.5">
-              <Label htmlFor="gstin">GSTIN (Optional)</Label>
-              <Input id="gstin" placeholder="22AAAAA0000A1Z5" />
-            </div>
-          )}
-
-          {/* Submit Button */}
-          <Button
-            type="submit"
-            disabled={loading}
-            className="w-full gradient-primary text-primary-foreground btn-ripple"
-          >
-            {loading
-              ? "Please wait..."
-              : isRegister
-              ? "Create Account"
-              : "Sign In"}
-          </Button>
-
-          {/* Toggle */}
-          <p className="text-center text-sm text-muted-foreground">
-            {isRegister ? "Already have an account?" : "Don't have an account?"}{" "}
-            <button
-              type="button"
-              onClick={() => setIsRegister(!isRegister)}
-              className="text-primary font-medium hover:underline"
-            >
-              {isRegister ? "Sign In" : "Register"}
-            </button>
-          </p>
-        </form>
-      </motion.div>
-    </div>
+        </motion.div>
+      </div>
+    </PageLayout>
   );
 };
 
