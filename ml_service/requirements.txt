@@ -1,5 +1,7 @@
-flask
-flask-cors
+fastapi
+pydantic
+typing
+jpblib
 numpy
 pandas
 scikit-learn
