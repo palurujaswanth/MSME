@@ -1,7 +1,6 @@
 fastapi
 pydantic
-typing
-jpblib
+joblib
 numpy
 pandas
 scikit-learn
