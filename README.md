@@ -126,4 +126,176 @@ The platform leverages a microservices architecture with independent frontend, b
 
 ## Architecture
 
+┌─────────────────────────────────────────────┐
+│                 End Users                   │
+│ (Business Owners, Employees, Administrators)│
+└─────────────────┬───────────────────────────┘
+                  │ HTTPS
+                  ▼
+┌─────────────────────────────────────────────┐
+│              Firebase Hosting               │
+│      React + TypeScript Frontend            │
+│         (creditintel.web.app)               │
+└─────────────────┬───────────────────────────┘
+                  │ REST APIs
+                  ▼
+┌─────────────────────────────────────────────┐
+│          Backend API Gateway                │
+│           Node.js + Express.js              │
+└───────┬───────────────────┬─────────────────┘
+        │                   │
+        ▼                   ▼
+┌───────────────┐   ┌───────────────────┐
+│ Authentication│   │ Business Services │
+│ Firebase Admin│   │ Inventory         │
+│ JWT Validation│   │ Sales             │
+│ User Roles    │   │ Analytics         │
+└───────┬───────┘   │ Reporting         │
+        │           └─────────┬─────────┘
+        ▼                     ▼
+┌─────────────────────────────────────────────┐
+│                 MongoDB                      │
+│                                             │
+│ Users Collection                            │
+│ Inventory Collection                        │
+│ Sales Collection                            │
+│ Reports Collection                          │
+│ Business Data Collection                    │
+└─────────────────────────────────────────────┘
+
+                  │
+                  ▼
+┌─────────────────────────────────────────────┐
+│           AI Chatbot Service                │
+│             Node.js + Groq API              │
+│                                             │
+│ Natural Language Processing                 │
+│ Business Insights                           │
+│ Intelligent Recommendations                 │
+└─────────────────────────────────────────────┘
+
+### A) High Level Component Architecture 
+
+Frontend Layer
+│
+├── Authentication Module
+├── Dashboard Module
+├── Inventory Module
+├── Sales Module
+├── Reports Module
+├── Analytics Module
+├── AI Chat Interface
+└── User Management Module
+
+            │
+            ▼
+
+Backend Layer
+│
+├── Authentication Controller
+├── User Controller
+├── Inventory Controller
+├── Sales Controller
+├── Analytics Controller
+├── Report Controller
+└── Chatbot Controller
+
+            │
+            ▼
+
+Database Layer
+│
+├── Users
+├── Products
+├── Inventory
+├── Sales
+├── Transactions
+└── Reports
+
+            │
+            ▼
+
+External Services
+│
+├── Firebase Authentication
+├── Groq AI API
+└── Firebase Hosting
+
+
+### B) Deployment Architecture 
+
+                Internet
+                    │
+                    ▼
+      https://creditintel.web.app
+                    │
+                    ▼
+          Firebase Hosting
+                    │
+                    ▼
+          React Frontend (Vite)
+                    │
+                    ▼
+          Express Backend API
+          (Render/Railway/VPS)
+                    │
+          ┌─────────┴─────────┐
+          ▼                   ▼
+      MongoDB Atlas       Groq API
+       Cloud DB          AI Services
+
 ### System Design
+
+### A)Users Collection
+
+{
+  "_id": "ObjectId",
+  "name": "String",
+  "email": "String",
+  "role": "admin/user",
+  "createdAt": "Date"
+}
+
+### B)Inventory Collection
+
+{
+  "_id": "ObjectId",
+  "productName": "String",
+  "quantity": "Number",
+  "price": "Number",
+  "warehouse": "String"
+}
+
+### C)Sales Collection 
+
+{
+  "_id": "ObjectId",
+  "customerName": "String",
+  "amount": "Number",
+  "date": "Date",
+  "status": "Completed"
+}
+
+
+### Security Architecture
+
+User
+ │
+ ▼
+Firebase Authentication
+ │
+ ▼
+JWT Token
+ │
+ ▼
+Backend Middleware
+ │
+ ▼
+Role-Based Access Control
+ │
+ ▼
+Protected APIs
+
+### The Above Data Ensures About the MSME Project Effectively 
+
+### All Rights Reserved @2026
