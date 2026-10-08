@@ -9,7 +9,7 @@ export const chatWithAI = async (req, res) => {
     }
 
     const completion = await groq.chat.completions.create({
-      model: "groq/compound-mini",
+      model: "openai/gpt-oss-120b",
       messages: [
         {
           role: "system",
